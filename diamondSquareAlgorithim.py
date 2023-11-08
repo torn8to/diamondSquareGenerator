@@ -1,7 +1,7 @@
-import numpy as np
 import random
-import math
-from numba import jit
+
+import numpy as np
+
 '''
 diamond square generation
 a map of 2^n+1 Width is th assumptino
@@ -10,6 +10,7 @@ parameters->  dimensions in
 '''
 
 np.set_printoptions(linewidth=200)
+
 
 def fixed(d, i, j, v, offsets):
 	n = d.shape[0]
@@ -30,15 +31,15 @@ def periodic(d, i, j, v, offsets):
 		res += d[(i + p * v) % n, (j + q * v) % n]
 	return res / 4.0
 
-#@jit(nopython=True)
+
+# @jit(nopython=True)
 def single_diamond_square_step(d, w, s, avg):
 	n = d.shape[0]
 	v = w // 2
 	
-	diamond = [(-1, -1), (-1, 1), (1, 1), (1, -1)]
-	square = [(-1, 0), (0, -1), (1, 0), (0, 1)]
+	diamond = np.array([[-1, -1], [-1, 1], [1, 1], [1, -1]])
+	square = np.array([[-1, 0], [0, -1], [1, 0], [0, 1]])
 	
-
 	for i in range(v, n, w):
 		for j in range(v, n, w):
 			d[i, j] = avg(d, i, j, v, diamond) + random.uniform(-s, s)
@@ -53,9 +54,10 @@ def single_diamond_square_step(d, w, s, avg):
 		for j in range(v, n, w):
 			d[i, j] = periodic(d, i, j, v, square) + random.uniform(-s, s)
 
-@jit(nopython=False)
-def diamondSquareGenerator(n:int, ds:float, bdry:staticmethod) -> np.ndarray:
-	
+
+#TODO make faster as once 2**10^1 takes ten seconds
+#jit might be the best or convert to a pyc to precompile using pyx -> need to include python headers
+def diamondSquareGenerator(n: int, ds: float, bdry: staticmethod) -> np.ndarray:
 	d = np.zeros((n, n))
 	
 	w, s = n - 1, 1.0
@@ -66,13 +68,3 @@ def diamondSquareGenerator(n:int, ds:float, bdry:staticmethod) -> np.ndarray:
 		s *= ds
 	
 	return d
-
-img = diamondSquareGenerator(2**12+1,.8,periodic)
-import matplotlib.pyplot as plt
-
-plt.imshow(img,cmap='gray')
-plt.colorbar()
-plt.show()
-
-
-#print(diamondSquareGeneration(5, 1))
