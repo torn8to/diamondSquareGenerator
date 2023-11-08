@@ -57,7 +57,7 @@ def single_diamond_square_step(d, w, s, avg):
 
 #TODO make faster as once 2**10^1 takes ten seconds
 #jit might be the best or convert to a pyc to precompile using pyx -> need to include python headers
-def diamondSquareGenerator(n: int, ds: float, bdry: staticmethod) -> np.ndarray:
+def diamondSquareGenerator(n: int, ds: float, bdry: staticmethod = periodic) -> np.ndarray:
 	d = np.zeros((n, n))
 	
 	w, s = n - 1, 1.0
