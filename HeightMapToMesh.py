@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from diamondSquareAlgorithim import diamondSquareGenerator, periodic
 from plyfile import PlyData, PlyElement
-
+from perlin_numpy import(generate_perlin_noise_2d)
 COLORS = {
 	"grass": (34, 139, 34),
 	"forest": (0, 100, 0),
@@ -140,12 +140,7 @@ def generateColoredFaces(heightMap,coloredMap):
 	print("Edges, surfaces generated")
 	surfaces = np.array(surfaces,dtype=[('vertex_indices', 'i4', (3,)), ('red', 'u1'), ('green', 'u1'),('blue', 'u1')])
 	return edges, surfaces
-
-
-def fitMapToBounds():
-
-
-
+	
 
 
 def saveToOBJ(vertices: np.ndarray, triangles: np.ndarray, colors:np.ndarray or None = None,  filename = "model.obj"):
@@ -168,7 +163,7 @@ def saveToPLY(vertices:np.ndarray,surface_list:np.ndarray,filename="model.ply"):
 	file = open(filename, "wb")
 	verts = PlyElement.describe(vertices,'vertex')
 	faces = PlyElement.describe(surface_list, 'face')
-	data = PlyData([verts,faces], text = True).write(file)
+	data = PlyData([verts,faces], text=True).write(file)
 	
 			
 def heightMapToPly(heightMap):
@@ -181,8 +176,33 @@ def heightMapToPly(heightMap):
 	saveToPLY(verts,surfaces)
 
 
-height_map = diamondSquareGenerator(2**9+1, .5, periodic)
-heightMapToPly(height_map)
+
+def generate2dPerlinWormsBinary(size ):
+	noise = generate_perlin_noise_2d((size, size), (1, 1))
+	base:np.ndarray = .15>np.abs(noise)
+	worms = base.astype(np.int8)
+	return worms
+
+
+def generateSquareHeightMapToPly(size = 512):
+	height_map = generate_perlin_noise_2d((size, size), (4, 4))
+	scaled_map = scaleHeightMap(height_map)
+	slope_map = generateSlopeMap(scaled_map)
+	color_map = getColoredMap(height_map,slope_map)
+	verts = generateColoredVertices(height_map,color_map)
+	edges, faces = generateFaces(height_map)
+	plt.imshow(color_map)
+	plt.show()
+
+
+
+
+generateSquareHeightMapToPly(512)
+
+
+	
+
+
 
 '''
 height_map = diamondSquareGenerator(2**9+1,.5, periodic)
